@@ -1,0 +1,714 @@
+---
+title: Seeing is Conceiving
+author: "Brian A. Fannin"
+date: "26 September 2019"
+output: 
+  revealjs::revealjs_presentation:
+    center: false
+    transition: none
+    css: css/custom.css
+    self_contained: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = FALSE
+  , warning = FALSE
+  , message = FALSE
+  , collapse = TRUE
+  , cache = TRUE
+)
+
+library(datasauRus)
+library(gridExtra)
+library(tidyverse)
+```
+
+```{r}
+my_void <- theme_void() +
+  theme(
+    text = element_text(size = 20)
+    , legend.position = 'none'
+  )
+
+my_minimal <- theme_minimal() +
+  theme(
+    text = element_text(size = 20)
+  )
+
+my_classic <- theme_classic() + 
+  theme(
+    text = element_text(size = 20)
+  )
+
+my_percent <- function(x) {
+  scales::percent(x, accuracy = 0.1)
+}
+
+my_args <- list(big.mark = ',', digits = 0, scientific = FALSE)
+```
+
+```{r}
+load('data/data.rda')
+```
+
+# Overview
+
+## Where to find this
+
+This presentation may be found at: http://pirategrunt.com/giro_2019
+
+Code to produce the examples and slides: https://github.com/PirateGrunt/giro_2019
+
+## {.center}
+
+* Semiotics
+* Information density
+* BONUS: What's new in CAS research
+
+# Semiotics
+
+## {.center .very-large-text-full}
+
+Seeing is believing
+
+## {.center}
+
+conceive (v) - form a mental representation of; imagine.
+
+## {.center}
+
+Seeing is _conceiving_
+
+## {.center}
+
+conceive (v) - form a mental representation of; imagine.
+
+## {data-background=white}
+
+## {.gigantic-text}
+
+9 
+
+## {.center}
+
+Which of these two numbers is larger? 
+
+##
+
+<div class = 'left very-large-text'>
+11
+</div>
+
+<div class = 'right very-large-text'>
+9
+</div>
+
+## {.center}
+
+How about these two?
+
+##
+
+<div class = 'left large-text'>
+1011
+</div>
+
+<div class = 'right large-text'>
+1001
+</div>
+
+## {.center}
+
+And these?
+
+##
+
+<div class = 'left very-large-text'>
+IX
+</div>
+
+<div class = 'right very-large-text'>
+XI
+</div>
+
+## {.center}
+
+These?
+
+##
+
+<div class = 'left large-text'>
+十一
+</div>
+
+<div class = 'right large-text'>
+九
+</div>
+
+## {.center}
+
+How about these?
+
+##
+
+```{r}
+tibble(
+    val = c('left', 'right')
+  , size = c(11, 9)
+) %>% 
+  ggplot(
+    aes(val, size)
+  ) + 
+  geom_bar(position = 'dodge', stat = 'identity') + 
+  my_void
+```
+
+## {.center}
+
+nine
+
+9
+
+neun
+
+1001
+
+九
+
+IX
+
+nueve
+
+##  {.center}
+
+Arabic or sanskrit are no more legitimate than any other representation of numbers.
+
+## {.center}
+
+9 != nine
+
+9 <> nine
+
+## {.center}
+
+_We can no more see numbers than we can taste or smell them._
+
+# Visualization == information density
+
+## This is actually _too much_ information
+
+```{r}
+tibble(
+    val = c('left', 'right')
+  , size = c(11, 9)
+) %>% 
+  ggplot(
+    aes(val, size)
+  ) + 
+  geom_bar(position = 'dodge', stat = 'identity') + 
+  my_void
+```
+
+## This is better
+
+```{r fig.width=4}
+tibble(
+    val = c('left', 'right')
+  , size = c(11, 9)
+) %>% 
+  ggplot(
+    aes(val, size)
+  ) + 
+  geom_bar(position = 'dodge', stat = 'identity', width = 0.1) + 
+  my_void
+```
+
+##
+
+Statistics maps a set of many numbers into a set of fewer numbers.
+
+```{r}
+set.seed(1234)
+mean <- 10e3
+cv <- 0.3
+sigma <- sqrt(log(1 + cv^2))
+mu <- log(mean) - sigma^2/2
+
+tbl_obs <- tibble(
+  x = rlnorm(5e3, mu, sigma)
+  , y = rgamma(5e3, 1 / cv^2, scale = mean * cv ^ 2)
+)
+
+tbl_obs_long <- tbl_obs %>% 
+  tidyr::gather(sample, value)
+
+tbl_obs <- tbl_obs %>% 
+  mutate(
+    yen = x * 137
+  )
+
+summary_x <- tbl_obs$x %>% 
+  summary()
+
+summary_y <- tbl_obs$y %>% 
+  summary()
+
+summary_yen <- tbl_obs$yen %>% 
+  summary()
+
+tbl_summary <- data.frame(
+  metric = names(summary_x)
+  , x = summary_x %>% as.numeric()
+  , y = summary_y %>% as.numeric()
+  , yen = summary_yen %>% as.numeric()
+)
+```
+
+```{r}
+mean_sample <- tbl_obs$x %>% mean()
+sd_sample <- tbl_obs$x %>% sd()
+```
+
+```{r }
+tbl_obs$x %>% 
+  summary()
+```
+
+## {.center}
+
+```{r }
+tbl_summary %>%
+  select(metric, x) %>% 
+  knitr::kable(
+    format.args = my_args
+  )
+```
+
+## 
+
+```{r}
+plt_base <- tbl_obs %>% 
+  ggplot(aes(x))
+
+plt_hist <- plt_base + 
+  geom_histogram(
+      aes(y = stat(density))
+    , fill = 'grey'
+    , color = 'black')
+
+plt_density <- plt_base + 
+  geom_density(fill = 'grey')
+
+grid.arrange(
+    nrow = 1
+  , plt_hist
+  , plt_density
+)
+```
+
+## 
+
+```{r}
+mean_x <- tbl_obs$x %>% mean()
+
+grid.arrange(
+    nrow = 1
+  , plt_hist + geom_vline(xintercept = mean_x, color = 'red')
+  , plt_density + geom_vline(xintercept = mean_x, color = 'red')
+)
+```
+
+##
+
+```{r}
+conf_95 <- quantile(tbl_obs$x, c(.05, .95))
+
+grid.arrange(
+    nrow = 1
+  , plt_hist + 
+      geom_vline(xintercept = mean_x, color = 'red') + 
+      geom_vline(xintercept = conf_95, color = 'black', alpha = 0.6)
+  , plt_density + geom_vline(xintercept = mean_x, color = 'red')  + 
+      geom_vline(xintercept = conf_95, color = 'black', alpha = 0.6)
+)
+```
+
+##
+
+<div class = 'left'>
+
+```{r }
+tbl_summary %>% 
+  select(metric, x) %>% 
+  knitr::kable(
+    format.args = my_args
+  )
+```
+
+</div>
+
+<div class = 'right'>
+
+```{r fig.height = 8}
+plt_hist + 
+  geom_vline(xintercept = mean_x, color = 'red') + 
+  geom_vline(xintercept = conf_95, color = 'black', alpha = 0.6)
+```
+
+</div>
+
+## {.center}
+
+Summary statistics are _always_ a reduction of information.
+
+Visualization presents (almost) _all_ of the data. The reductions are made with our eyes. 
+
+## {.center}
+
+Scale transforms
+
+## {.center}
+
+```{r}
+tbl_summary %>% 
+  select(metric, x, z = yen) %>% 
+  knitr::kable(
+    format.args = my_args
+  )
+```
+
+##
+
+```{r}
+plt_x <- tbl_obs %>% 
+  ggplot(aes(x)) + 
+  geom_histogram(
+      aes(y = stat(density))
+    , fill = 'grey'
+    , color = 'black')
+
+plt_yen <- tbl_obs %>% 
+  ggplot(aes(yen)) + 
+  geom_histogram(
+      aes(y = stat(density))
+    , fill = 'grey'
+    , color = 'black')
+
+grid.arrange(
+    nrow = 1
+  , plt_x
+  , plt_yen
+)
+```
+
+## {.center}
+
+Visualization as a metaphor for a model
+
+## {.center}
+
+```{r}
+tbl_summary %>% 
+  select(metric, x, y) %>% 
+  knitr::kable(
+    format.args = my_args
+  )
+```
+
+## 
+
+```{r}
+plt_ln_base <- tbl_obs_long %>% 
+  filter(sample == 'x') %>% 
+  ggplot(aes(sample, value)) +
+  geom_boxplot()
+
+grid.arrange(
+  nrow = 1
+  , plt_ln_base
+  , plt_ln_base + scale_y_log10()
+)
+```
+
+##
+
+```{r}
+tbl_obs_long %>% 
+  ggplot(aes(sample, value)) + 
+  geom_boxplot() + 
+  scale_y_log10()
+```
+
+## Financial reporting view
+
+```{r}
+tbl_policy_uy <- tbl_policy %>% 
+  group_by(uy = lubridate::year(effective_date)) %>% 
+  summarise(
+    mean_claims = mean(num_claims)
+  )
+```
+
+```{r }
+tbl_policy_uy %>% 
+  knitr::kable(format.args = list(digits = 2))
+```
+
+##
+
+```{r}
+tbl_policy_uy %>% 
+  ggplot(aes(uy, mean_claims)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm') + 
+  scale_x_continuous(breaks = tbl_policy_uy$uy %>% unique())
+```
+
+##
+
+```{r}
+tbl_policy %>% 
+  ggplot(aes(effective_date, num_claims)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm')
+```
+
+##
+
+```{r}
+tbl_policy %>%
+  mutate(
+    uy = lubridate::year(effective_date)
+  ) %>% 
+  ggplot(aes(uy, num_claims)) + 
+  geom_boxplot(aes(group = uy)) + 
+  geom_smooth(method = 'lm') + 
+  scale_x_continuous(breaks = tbl_policy_uy$uy %>% unique())
+```
+
+##
+
+<div class = 'left'>
+
+```{r}
+tbl_policy_uy %>% 
+  knitr::kable(format.args = list(digits = 2))
+```
+
+</div>
+
+<div class = 'left'>
+
+```{r fig.height=8}
+tbl_policy %>%
+  mutate(
+    uy = lubridate::year(effective_date)
+  ) %>% 
+  ggplot(aes(uy, num_claims)) + 
+  geom_boxplot(aes(group = uy)) + 
+  geom_smooth(method = 'lm') + 
+  scale_x_continuous(breaks = tbl_policy_uy$uy %>% unique())
+
+```
+
+</div>
+
+<!--
+##
+
+```{r}
+tbl_policy %>% 
+  ggplot(aes(num_claims)) + 
+  geom_histogram(aes(fill = region), position = 'dodge', binwidth = 1) + 
+  facet_wrap(~ region)
+```
+
+## 
+
+```{r}
+tbl_policy %>% 
+  ggplot(aes(num_claims)) + 
+  geom_density(aes(fill = region), alpha = 0.7)
+```
+-->
+
+## Validating models
+
+A good model is one which isolates signal and leaves only noise.  
+
+## 
+
+```{r}
+data(anscombe)
+
+tbl_anscombe <- anscombe %>% 
+  tidyr::gather() %>% 
+  tidyr::separate(key, c('var', 'segment'), sep = 1) %>% 
+  group_by(var, segment) %>% 
+  mutate(index = seq_len(n())) %>% 
+  ungroup() %>% 
+  tidyr::spread(var, value) %>% 
+  mutate(
+    segment = as.integer(segment)
+  )
+```
+
+```{r}
+fit_segment <- function(which_segment) {
+  tbl_anscombe %>% 
+    dplyr::filter(segment == which_segment) %>% 
+    lm(formula = y ~ 1 + x)
+}
+
+tbl_fit <- tbl_anscombe %>% 
+  group_by(segment) %>% 
+  summarise(
+    n = n()
+  ) %>% 
+  mutate(
+    fit = map(segment, fit_segment)
+  )
+
+tbl_model <- map_dfr(tbl_fit$fit, broom::glance) %>% 
+  mutate(segment = 1:4)
+```
+
+```{r}
+tbl_model %>% 
+  dplyr::select(segment, adj.r.squared, sigma) %>% 
+  mutate(
+    adj.r.squared = my_percent(adj.r.squared)
+    , sigma = format(sigma, digits = 2)
+  ) %>% 
+  knitr::kable()
+```
+
+Are these good models?
+
+## 
+
+```{r }
+tbl_anscombe %>% 
+  ggplot(aes(x, y)) + 
+  geom_point() + 
+  facet_wrap(~segment, scales = 'free') + 
+  geom_smooth(method = 'lm', se = FALSE) + 
+  my_minimal
+```
+
+## 
+
+```{r}
+tbl_residuals <- map_dfr(tbl_fit$fit, broom::augment) %>% 
+  mutate(
+    segment = rep(1:4, 11) %>% sort()
+  ) %>% 
+  rename(
+    fitted = `.fitted`
+    , residual = `.std.resid`
+  )
+
+
+tbl_residuals %>% 
+  ggplot(aes(fitted, residual)) + 
+  geom_point() + 
+  facet_wrap(~ segment, scales = 'free') + 
+  geom_hline(yintercept = 0, color = 'blue') + 
+  geom_hline(yintercept = c(3, -3), color = 'red', linetype = 'dashed') + 
+  my_minimal
+```
+
+## {.center .very-large-text-full}
+
+Correlation is not causation
+
+##
+
+```{r}
+data(datasaurus_dozen)
+
+tbl_cor <- datasaurus_dozen %>% 
+  group_by(dataset) %>% 
+  summarise(
+    correlation = cor(x, y)
+  ) %>% 
+  mutate(set = letters[seq_len(nrow(.))])
+```
+
+```{r}
+tbl_cor %>% 
+  dplyr::select(set, correlation) %>% 
+  mutate(correlation = scales::percent(correlation, accuracy = .1)) %>% 
+  knitr::kable()
+```
+
+##
+
+```{r}
+this_cor <- tbl_cor$correlation[tbl_cor$dataset == 'away'] %>% 
+  scales::percent(accuracy = 0.1)
+
+datasaurus_dozen %>% 
+  filter(dataset == 'away') %>% 
+  ggplot(aes(x, y)) + 
+  geom_point() + 
+  labs(title = paste('Correlation = ', this_cor)) + 
+  my_classic
+```
+
+## {.center}
+
+Another
+
+##
+
+```{r}
+this_cor <- tbl_cor$correlation[tbl_cor$dataset == 'slant_up'] %>% 
+  scales::percent(accuracy = 0.1)
+
+datasaurus_dozen %>% 
+  filter(dataset == 'slant_up') %>% 
+  ggplot(aes(x, y)) + 
+  geom_point() + 
+  labs(title = paste('Correlation = ', this_cor)) + 
+  my_classic
+```
+
+## {.center}
+
+Another
+
+## 
+
+```{r}
+this_cor <- tbl_cor$correlation[tbl_cor$dataset == 'dino'] %>% 
+  scales::percent(accuracy = 0.1)
+
+datasaurus_dozen %>% 
+  filter(dataset == 'dino') %>% 
+  ggplot(aes(x, y)) + 
+  geom_point() + 
+  labs(title = paste('Correlation = ', this_cor)) + 
+  my_classic
+```
+
+# Conclusion
+
+## {.center}
+
+Numbers are more than symbols
+
+Visualization == information density
+
+## {.center .very-large-text-full}
+
+Seeing is conceving
+
+## Thank you!
+
+## Where to find this
+
+This presentation may be found at: http://pirategrunt.com/giro_2019
+
+Code to produce the examples and slides: https://github.com/PirateGrunt/giro_2019
