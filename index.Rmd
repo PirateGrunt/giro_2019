@@ -92,6 +92,12 @@ conceive (v) - form a mental representation of; imagine.
 
 ## {.center}
 
+For statisticians there always have to be comparisons; numbers on their own are not enough. 
+
+- Gelman and Unwin
+
+## {.center}
+
 Which of these two numbers is larger? 
 
 ##
@@ -120,7 +126,7 @@ How about these two?
 
 ## {.center}
 
-And these?
+These?
 
 ##
 
@@ -130,6 +136,20 @@ IX
 
 <div class = 'right very-large-text'>
 XI
+</div>
+
+## {.center}
+
+And these?
+
+##
+
+<div class = 'left very-large-text'>
+9
+</div>
+
+<div class = 'right very-large-text'>
+B
 </div>
 
 ## {.center}
@@ -144,6 +164,20 @@ These?
 
 <div class = 'right large-text'>
 九
+</div>
+
+## {.center}
+
+These?
+
+##
+
+<div class = 'left small-text'>
+11
+</div>
+
+<div class = 'right very-large-text'>
+9
 </div>
 
 ## {.center}
@@ -182,19 +216,62 @@ nueve
 
 ##  {.center}
 
+<div class = 'left'>
 Arabic or sanskrit are no more legitimate than any other representation of numbers.
+</div>
+
+<div class = 'right'>
+
+Be prepared to accept the idea that there are circumstances when geometric primitives may be understood _faster_.
+</div>
 
 ## {.center}
 
-9 != nine
+Another comparison
 
-9 <> nine
+##
+
+<div class = 'left'>
+999999999
+</div>
+
+<div class = 'right'>
+99999999999
+</div>
 
 ## {.center}
 
-_We can no more see numbers than we can taste or smell them._
+These two?
 
-# Visualization == information density
+##
+
+<div class = 'left'>
+999,999,999
+</div>
+
+<div class = 'right'>
+99,999,999,999
+</div>
+
+## {.center}
+
+What does an order of magnitude look like?
+
+##
+
+```{r}
+tibble(
+    val = c('left', 'right')
+  , size = c(99999999999, 999999999)
+) %>% 
+  ggplot(
+    aes(val, size)
+  ) + 
+  geom_bar(position = 'dodge', stat = 'identity') + 
+  my_void
+```
+
+# Information density
 
 ## This is actually _too much_ information
 
@@ -693,13 +770,12 @@ datasaurus_dozen %>%
   my_classic
 ```
 
-# Conclusion
+# What's new at the CAS?
 
-## {.center}
+##
 
-Numbers are more than symbols
-
-Visualization == information density
+* New GitHub account
+* A few projects about to wrap up
 
 ## {.center .very-large-text-full}
 
