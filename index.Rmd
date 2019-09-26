@@ -8,6 +8,8 @@ output:
     transition: none
     css: css/custom.css
     self_contained: yes
+    reveal_options:
+      slideNumber: true
 ---
 
 ```{r setup, include=FALSE}
@@ -60,7 +62,7 @@ This presentation may be found at: http://pirategrunt.com/giro_2019
 
 Code to produce the examples and slides: https://github.com/PirateGrunt/giro_2019
 
-## {.center}
+## What we'll talk about
 
 * Semiotics
 * Information density
@@ -184,7 +186,7 @@ These?
 
 How about these?
 
-##
+## {data-background=white}
 
 ```{r}
 tibble(
@@ -220,12 +222,13 @@ nueve
 Arabic or sanskrit are no more legitimate than any other representation of numbers.
 </div>
 
-<div class = 'right'>
+## {.center}
 
+<div class = 'right'>
 Be prepared to accept the idea that there are circumstances when geometric primitives may be understood _faster_.
 </div>
 
-## {.center}
+## {.center .large-text}
 
 Another comparison
 
@@ -441,9 +444,9 @@ Summary statistics are _always_ a reduction of information.
 
 Visualization presents (almost) _all_ of the data. The reductions are made with our eyes. 
 
-## {.center}
+## {.center .medium-text}
 
-Scale transforms
+Which data set has greater skew?
 
 ## {.center}
 
@@ -477,6 +480,25 @@ grid.arrange(
   , plt_x
   , plt_yen
 )
+```
+
+##
+
+```{r }
+tbl_skew <- tibble(
+  metric = 'skew'
+  , x = moments::skewness(tbl_obs$x)
+  , z = moments::skewness(tbl_obs$yen)
+)
+
+tbl_summary %>% 
+  select(metric, x, z = yen) %>% 
+  knitr::kable(
+    format.args = my_args
+  )
+
+tbl_skew %>% 
+  knitr::kable()
 ```
 
 ## {.center}
@@ -524,11 +546,13 @@ tbl_policy_uy <- tbl_policy %>%
   group_by(uy = lubridate::year(effective_date)) %>% 
   summarise(
     mean_claims = mean(num_claims)
+    , median_claims = median(num_claims)
   )
 ```
 
 ```{r }
 tbl_policy_uy %>% 
+  select(uy, mean_claims) %>% 
   knitr::kable(format.args = list(digits = 2))
 ```
 
@@ -550,6 +574,16 @@ tbl_policy %>%
   geom_point() + 
   geom_smooth(method = 'lm')
 ```
+
+##
+
+```{r echo = FALSE}
+tbl_policy %>% 
+  select(effective_date, num_claims) %>% 
+  head(30) %>% 
+  knitr::kable()
+```
+
 
 ##
 
@@ -591,6 +625,33 @@ tbl_policy %>%
 
 </div>
 
+##
+
+<div class = 'left'>
+
+```{r}
+tbl_policy_uy %>% 
+  knitr::kable(format.args = list(digits = 3))
+```
+
+</div>
+
+<div class = 'left'>
+
+```{r fig.height=8}
+tbl_policy %>%
+  mutate(
+    uy = lubridate::year(effective_date)
+  ) %>% 
+  ggplot(aes(uy, num_claims)) + 
+  geom_boxplot(aes(group = uy)) + 
+  geom_smooth(method = 'lm') + 
+  scale_x_continuous(breaks = tbl_policy_uy$uy %>% unique())
+
+```
+
+</div>
+
 <!--
 ##
 
@@ -608,13 +669,13 @@ tbl_policy %>%
   ggplot(aes(num_claims)) + 
   geom_density(aes(fill = region), alpha = 0.7)
 ```
--->
 
 ## Validating models
 
 A good model is one which isolates signal and leaves only noise.  
+-->
 
-## 
+## Are these good models?
 
 ```{r}
 data(anscombe)
@@ -660,8 +721,6 @@ tbl_model %>%
   ) %>% 
   knitr::kable()
 ```
-
-Are these good models?
 
 ## 
 
@@ -770,16 +829,35 @@ datasaurus_dozen %>%
   my_classic
 ```
 
-# What's new at the CAS?
-
-##
-
-* New GitHub account
-* A few projects about to wrap up
-
 ## {.center .very-large-text-full}
 
 Seeing is conceving
+
+# What's new with CAS research?
+
+## Wrapping up
+
+* Exposure bases for cyber liability
+* Compartmental reserving methods
+* Machine learning in reserving
+
+## On deck
+
+* Economic scenario generators for non-life insurance
+* Flood modeling using public data
+* On the viability of microinsurance in North America
+
+## New GitHub account
+
+https://github.com/casact
+
+```{r echo = FALSE}
+knitr::include_graphics('images/github.png')
+```
+
+## Talk to me
+
+[bfannin@casact.org](mailto:bfannin@casact.org)
 
 ## Thank you!
 

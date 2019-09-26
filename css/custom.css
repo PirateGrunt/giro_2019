@@ -103,6 +103,10 @@ Two column layout
   font-size: 650% ;
 }
 
+.medium-text > p {
+  font-size: 300% ;
+}
+
 .very-large-text-full > p {
   font-size: 400% ;
 }
