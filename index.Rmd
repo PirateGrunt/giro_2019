@@ -831,7 +831,7 @@ datasaurus_dozen %>%
 
 ## {.center .very-large-text-full}
 
-Seeing is conceving
+Seeing is conceiving
 
 # What's new with CAS research?
 
